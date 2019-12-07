@@ -1,0 +1,42 @@
+/* Заголовок h1 увеличен в 2 раза */
+h1 {
+  font-size: 2em;
+}
+
+/* Горизонтальная линия под заголовками h1 и h2 */
+h1, h2 {
+  padding-bottom: .3em;
+  border-bottom: 1px solid #eaecef;
+}
+
+/* Серый фон для кода */
+code {
+  background-color: #eee;
+}
+
+/* Блок кода на всю ширину страницы */
+pre code {
+  display: block;
+  padding: 16px;
+}
+
+/* Обводка вокруг каждой ячейки таблицы */
+table td, table th {
+    padding: 6px 13px;
+    border: 1px solid #dfe2e5;
+}
+
+/* Убираем зазоры между ячейками таблицы */
+table {
+    border-collapse: collapse;
+}
+
+/* Каждая вторая строка таблицы - серая */
+table tr:nth-child(2n) {
+    background-color: #f6f8fa;
+}
+
+/* Избавляемся от увеличенного шрифта формул */
+.katex {
+    font-size: 1em !important;
+}

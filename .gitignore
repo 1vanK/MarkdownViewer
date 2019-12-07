@@ -1,0 +1,8 @@
+# Рекурсивно игнорируем все файлы
+ThirdParty/cef_win32/**
+
+# но не директории
+!ThirdParty/cef_win32/**/
+
+# чтобы оставить файл
+!ThirdParty/cef_win32/cmake/cef_variables.cmake
