@@ -4,5 +4,6 @@ ThirdParty/cef_win32/**
 # но не директории
 !ThirdParty/cef_win32/**/
 
-# чтобы оставить файл
+# чтобы оставить файлы
 !ThirdParty/cef_win32/cmake/cef_variables.cmake
+!ThirdParty/cef_win32/MyNotes.md
