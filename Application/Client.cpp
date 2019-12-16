@@ -384,5 +384,7 @@ void Client::OnLoadError(CefRefPtr<CefBrowser> browser
         << std::string(failedUrl) << " with error " << std::string(errorText)
         << " (" << errorCode << ").</h2></body></html>";
 
+    // Эта страница добавляется в историю и это печаль,
+    // а frame->LoadString() удален
     frame->LoadURL(GetDataURI(ss.str(), "text/html"));
 }
