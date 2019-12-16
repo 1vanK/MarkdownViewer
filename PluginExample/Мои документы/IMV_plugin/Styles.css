@@ -1,0 +1,37 @@
+div#header {
+	background: #bcf;
+	padding: 10px;
+}
+
+
+div#sidebar {
+	float: left;
+	width: 30%;
+	background: #ccc;
+	padding: 10px;
+	box-sizing: border-box;
+}
+
+
+div#content {
+	margin-left: 30%;
+	padding: 10px;
+	box-sizing: border-box;
+}
+
+
+div#footer {
+	clear: left;
+	background: #bcf;
+	padding: 10px;
+}
+
+
+details {
+	background: #f0f0ff;
+}
+
+
+details summary {
+	background: #f0f0f0;
+}

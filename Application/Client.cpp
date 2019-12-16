@@ -3,6 +3,7 @@
 #include "CefUtils.h"
 #include "Platform.h"
 #include "Consts.h"
+#include "UserPlugin.h"
 
 // cmark-gfm
 #include <parser.h>
@@ -46,6 +47,25 @@ std::string GetResourcesPath()
 }
 
 
+std::string UrlToFilePath(const std::string& url)
+{
+    std::string ret = url;
+
+    const std::string fileScheme = "file:///";
+
+    // Убираем file:/// в начале url
+    if (StartsWith(ret, fileScheme))
+        ret = ret.substr(fileScheme.size());
+
+    // Кириллица и пробелы закодированы
+    cef_uri_unescape_rule_t rule = static_cast<cef_uri_unescape_rule_t>
+        (UU_SPACES | UU_URL_SPECIAL_CHARS_EXCEPT_PATH_SEPARATORS);
+    ret = CefURIDecode(ret, true, rule);
+
+    return ret;
+}
+
+
 // Преобразователь Markdown > Html
 class MarkdownToHtml : public CefResponseFilter
 {
@@ -62,9 +82,18 @@ private:
     // Смещение, с которого надо отдавать очередной кусок результат
     size_t lastOffset_ = 0;
 
+#ifdef MY_PLUGIN_SYSTEM
+    // Данные для пользовательских скриптов, подключаемых к каждому .md-файлу
+    UserScriptData userScriptData_;
+#endif // ifdef MY_PLUGIN_SYSTEM
+
 public:
-    MarkdownToHtml()
+    MarkdownToHtml(const std::string& url)
     {
+#ifdef MY_PLUGIN_SYSTEM
+        // Обновляем данные для скрипта текущего .md-файла
+        userScriptData_.Init(UrlToFilePath(url));
+#endif // ifdef MY_PLUGIN_SYSTEM
     }
 
     ~MarkdownToHtml()
@@ -72,6 +101,47 @@ public:
     }
 
     bool InitFilter() override { return true; }
+
+    // Обвешивает сгенерированный  библиотекой cmark-gfm
+    // html-код всем необходимым
+    void InitResultHtml(const std::string& bodyHtml)
+    {
+        resultHtml_ =
+            "<!DOCTYPE html>"
+            "<html>"
+                "<head>"
+                    "<meta charset='utf-8'>"
+                    "<link rel='stylesheet' href='" + GetResourcesPath() + "/Style.css'>"
+                    "<link rel='stylesheet' href='" + GetResourcesPath() + "/katex.min.css'>"
+                    "<link rel='stylesheet' href='" + GetResourcesPath() + "/copy-tex.min.css'>"
+
+#ifdef MY_PLUGIN_SYSTEM
+                    + userScriptData_.HeadAppend() +
+#endif // ifdef MY_PLUGIN_SYSTEM
+
+            "</head>"
+                "<body onload='renderMathInElement(document.body, {strict: false});'>"
+                        
+                    + bodyHtml +
+                        
+                    // Чтобы cmark при преобразовании md -> html не пытался парсить формулы,
+                    // юзер должен оформлять их как inline code.
+                    // После переобразования md -> html этот скрипт извлекает формулы
+                    // из <code></code>, чтобы KaTeX их не игнорировал.
+                    // Источник: https://yihui.org/en/2018/07/latex-math-markdown/
+                    "<script defer src='" + GetResourcesPath() + "/UnprotectMath.js'></script>"
+
+                    "<script defer src='" + GetResourcesPath() + "/katex.min.js'></script>"
+                    "<script defer src='" + GetResourcesPath() + "/auto-render.min.js'></script>"
+                    "<script defer src='" + GetResourcesPath() + "/copy-tex.min.js'></script>"
+
+#ifdef MY_PLUGIN_SYSTEM
+                    + userScriptData_.BodyAppend() +
+#endif // ifdef MY_PLUGIN_SYSTEM
+
+                "</body>"
+            "</html>";
+    }
 
     // Выходные данные отдаются по кускам. Эта функция вызывается
     // до тех пор, пока не отдаст всю html-страницу
@@ -83,7 +153,8 @@ public:
 
         // Скармливаем парсеру входные данные.
         // data_in_size == 0 когда все входные данные уже прочитаны,
-        // но не хватило размера выходного буфера, чтобы отдать все сразу
+        // но не хватило размера выходного буфера, чтобы отдать все сразу.
+        // А еще когда исходный .md-файл пуст
         if (data_in_size)
         {
             const int OPTIONS = CMARK_OPT_VALIDATE_UTF8 | CMARK_OPT_UNSAFE;
@@ -92,36 +163,18 @@ public:
             cmark_parser_feed(parser, (char*)data_in, data_in_size);
             cmark_node* root = cmark_parser_finish(parser);
             char* bodyHtml = cmark_render_html(root, OPTIONS, parser->syntax_extensions);
-            resultHtml_ = bodyHtml;
+            InitResultHtml(bodyHtml);
             free(bodyHtml);
             cmark_parser_free(parser);
             cmark_node_free(root);
 
-            resultHtml_ =
-                "<!DOCTYPE html>"
-                "<html>"
-                    "<head>"
-                        "<meta charset='utf-8'>"
-                        "<link rel='stylesheet' href='" + GetResourcesPath() + "/Style.css'>"
-                        "<link rel='stylesheet' href='" + GetResourcesPath() + "/katex.min.css'>"
-                        "<link rel='stylesheet' href='" + GetResourcesPath() + "/copy-tex.min.css'>"
-                    "</head>"
-                    "<body onload='renderMathInElement(document.body);'>"
-                        + resultHtml_ +
-                        
-                        // Чтобы cmark при преобразовании md -> html не пытался парсить формулы,
-                        // юзер должен оформлять их как inline code.
-                        // После переобразования md -> html этот скрипт извлекает формулы
-                        // из <code></code>, чтобы KaTeX их не игнорировал.
-                        // Источник: https://yihui.org/en/2018/07/latex-math-markdown/
-                        "<script defer src='" + GetResourcesPath() + "/UnprotectMath.js'></script>"
+            remainingLength_ = resultHtml_.length();
+        }
 
-                        "<script defer src='" + GetResourcesPath() + "/katex.min.js'></script>"
-                        "<script defer src='" + GetResourcesPath() + "/auto-render.min.js'></script>"
-                        "<script defer src='" + GetResourcesPath() + "/copy-tex.min.js'></script>"
-                    "</body>"
-                "</html>";
-
+        // Если на вход был подан пустой .md-файл
+        if (resultHtml_.empty())
+        {
+            InitResultHtml("");
             remainingLength_ = resultHtml_.length();
         }
 
@@ -163,7 +216,7 @@ CefRefPtr<CefResponseFilter> Client::GetResourceResponseFilter
     if (!EndsWith(url, ".md"))
         return nullptr;
 
-    return new MarkdownToHtml();
+    return new MarkdownToHtml(url);
 }
 
 
@@ -197,23 +250,15 @@ CefRefPtr<CefResourceHandler> Client::GetResourceHandler
     
     std::string url = request->GetURL();
 
-    const std::string fileScheme = "file:///";
-
     // Если это не файл, то используем стандартный обработчик
-    if (!StartsWith(url, fileScheme))
+    if (!StartsWith(url, "file:///"))
         return nullptr;
 
     // Если это не *.md-файл, то используем стандартный обработчик
     if (!EndsWith(url, ".md"))
         return nullptr;
 
-    // Убираем file:/// в начале url
-    std::string filePath = url.substr(fileScheme.size());
-
-    // Кириллица и пробелы закодированы
-    cef_uri_unescape_rule_t rule = static_cast<cef_uri_unescape_rule_t>
-        (UU_SPACES | UU_URL_SPECIAL_CHARS_EXCEPT_PATH_SEPARATORS);
-    filePath = CefURIDecode(filePath, true, rule);
+    std::string filePath = UrlToFilePath(url);
 
     // Создаем поток для чтения файла
     CefRefPtr<CefStreamReader> reader = CefStreamReader::CreateForFile(filePath);
@@ -232,10 +277,19 @@ bool Client::OnPreKeyEvent(CefRefPtr<CefBrowser> browser
 
     // При нажатии Backspace возвращаемся на предыдущую страницу
     if (!event.focus_on_editable_field
-        && event.windows_key_code == 0x8
+        && event.windows_key_code == 0x08
         && event.type == KEYEVENT_RAWKEYDOWN)
     {
         browser->GoBack();
+        return true;
+    }
+
+    // При нажатии F5 обновляем страницу
+    if (!event.focus_on_editable_field
+        && event.windows_key_code == 0x74
+        && event.type == KEYEVENT_RAWKEYDOWN)
+    {
+        browser->Reload();
         return true;
     }
 
