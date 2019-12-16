@@ -102,7 +102,7 @@ public:
 
     bool InitFilter() override { return true; }
 
-    // Обвешивает сгенерированный  библиотекой cmark-gfm
+    // Обвешивает сгенерированный библиотекой cmark-gfm
     // html-код всем необходимым
     void InitResultHtml(const std::string& bodyHtml)
     {
