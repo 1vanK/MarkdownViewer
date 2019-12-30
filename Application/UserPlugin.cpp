@@ -8,14 +8,14 @@
 
 
 // Каталог, в котором находится папка с таким названием, считается корневым
-#define PLUGIN_DIR_NAME "IMV_plugin"
+#define PLUGIN_DIR_NAME "_IMV_plugin"
 
 
 // Если программа натыкается на файл с таким названием прежде,
 // чем найдет папку плагина, то для текущего .md-файла плагин не будет использоваться.
 // Если в каталоге есть и PLUGIN_DIR_NAME и IGNORE_PLUGIN_FILE_NAME,
 // то плагин игнорируется 
-#define IGNORE_PLUGIN_FILE_NAME "IMV_ignore_plugin"
+#define IGNORE_PLUGIN_FILE_NAME "_IMV_ignore_plugin"
 
 
 void UserScriptData::Init(const std::string& mdFilePath)
