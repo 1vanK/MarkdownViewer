@@ -49,13 +49,22 @@ std::string GetResourcesPath()
 
 std::string UrlToFilePath(const std::string& url)
 {
-    std::string ret = url;
+    CefURLParts urlParts;
+    if (!CefParseURL(url, urlParts)) // Не удалось разделить на компоненты
+        return url;
 
-    const std::string fileScheme = "file:///";
+    if (CefString(&urlParts.scheme) != "file") // Это не файл
+        return url;
 
-    // Убираем file:/// в начале url
-    if (StartsWith(ret, fileScheme))
-        ret = ret.substr(fileScheme.size());
+    // В path уже отброшено ?tag=...
+    std::string ret = CefString(&urlParts.path);
+
+    // path должен начинаться с /
+    if (!StartsWith(ret, "/"))
+        return url;
+
+    // Убираем / в начале path
+    ret = ret.substr(1);
 
     // Кириллица и пробелы закодированы
     cef_uri_unescape_rule_t rule = static_cast<cef_uri_unescape_rule_t>
@@ -206,17 +215,22 @@ CefRefPtr<CefResponseFilter> Client::GetResourceResponseFilter
 {
     CEF_REQUIRE_IO_THREAD();
 
-    std::string url = request->GetURL();
+    // Не изменяем страницу, если не удалось разделить url на компоненты
+    CefURLParts urlParts;
+    if (!CefParseURL(request->GetURL(), urlParts))
+        return nullptr;
 
     // Если это не файл, то не изменяем страницу
-    if (!StartsWith(url, "file:///"))
+    if (CefString(&urlParts.scheme) != "file")
         return nullptr;
 
-    // Если это не *.md-файл, то не изменяем страницу
-    if (!EndsWith(url, ".md"))
-        return nullptr;
+    // В path уже отброшено ?tag=...
+    std::string path = CefString(&urlParts.path);
+    if (EndsWith(path, ".md"))
+        return new MarkdownToHtml(request->GetURL());
 
-    return new MarkdownToHtml(url);
+    // Не изменяем страницу
+    return nullptr;
 }
 
 
@@ -248,17 +262,23 @@ CefRefPtr<CefResourceHandler> Client::GetResourceHandler
 {
     CEF_REQUIRE_IO_THREAD();
     
-    std::string url = request->GetURL();
+    // Если не удалось разделить url на компоненты, то используем стандартный обработчик
+    CefURLParts urlParts;
+    if (!CefParseURL(request->GetURL(), urlParts))
+        return nullptr;
 
     // Если это не файл, то используем стандартный обработчик
-    if (!StartsWith(url, "file:///"))
+    if (CefString(&urlParts.scheme) != "file")
         return nullptr;
+
+    // В path уже отброшено ?tag=...
+    std::string path = CefString(&urlParts.path);
 
     // Если это не *.md-файл, то используем стандартный обработчик
-    if (!EndsWith(url, ".md"))
+    if (!EndsWith(path, ".md"))
         return nullptr;
 
-    std::string filePath = UrlToFilePath(url);
+    std::string filePath = UrlToFilePath(request->GetURL());
 
     // Создаем поток для чтения файла
     CefRefPtr<CefStreamReader> reader = CefStreamReader::CreateForFile(filePath);
