@@ -1,5 +1,7 @@
 #include "Utils.h"
 
+#include <Windows.h>
+
 
 bool CompareCharsIgnoreCase(char c1, char c2)
 {
@@ -37,3 +39,20 @@ void CreateDirectories(const fs::path& filePath)
     fs::create_directories(directories);
 }
 
+
+std::wstring Utf8ToWStr(const std::string& str)
+{
+    // Вычисляем длину
+    int size = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, 0, 0);
+    
+    if (size <= 0)
+        return std::wstring();
+
+    std::wstring result;
+    result.resize(size);
+
+    if (MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, &result[0], (int)result.size()) <= 0)
+        return std::wstring();
+
+    return result;
+}

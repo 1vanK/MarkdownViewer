@@ -9,3 +9,4 @@ namespace fs = std::filesystem;
 // TODO: Реализовать функции с игнором регистра
 bool StartsWith(std::string const& str, std::string const& value);
 bool EndsWith(std::string const& str, std::string const& ending);
+std::wstring Utf8ToWStr(const std::string& str);

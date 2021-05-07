@@ -273,17 +273,15 @@ CefRefPtr<CefResourceHandler> Client::GetResourceHandler
     if (CefString(&urlParts.scheme) != "file")
         return nullptr;
 
-    // В path уже отброшено ?tag=...
-    std::string path = CefString(&urlParts.path);
+    // Отбрасываем ?tag=...
+    std::string path = UrlToFilePath(request->GetURL());
 
     // Если это не *.md-файл, то используем стандартный обработчик
     if (!EndsWith(path, ".md"))
         return nullptr;
 
-    std::string filePath = UrlToFilePath(request->GetURL());
-
     // Создаем поток для чтения файла
-    CefRefPtr<CefStreamReader> reader = CefStreamReader::CreateForFile(filePath);
+    CefRefPtr<CefStreamReader> reader = CefStreamReader::CreateForFile(path);
     if (!reader)
         return nullptr;
 
@@ -339,7 +337,6 @@ bool Client::OnOpenURLFromTab(CefRefPtr<CefBrowser> browser
 }
 
 
-// Ссылки, ведущие на внешние сайты, открываем в дефолтном браузере, а не в этой программе
 bool Client::OnBeforeBrowse(CefRefPtr<CefBrowser> browser
     , CefRefPtr<CefFrame> frame
     , CefRefPtr<CefRequest> request
@@ -348,11 +345,38 @@ bool Client::OnBeforeBrowse(CefRefPtr<CefBrowser> browser
 {
     CefURLParts urlParts;
     if (!CefParseURL(request->GetURL(), urlParts)) // Не удалось разделить на компоненты
-        return false; // Обрабатывается стандартными методами
+        return false; // Используем стандартный обработчик
 
-    if (CefString(&urlParts.scheme) != "file") // Это не файл
+    if (CefString(&urlParts.scheme) != "file") // Это не локальный файл
     {
-        ShellExecuteA(nullptr, "open", request->GetURL().ToString().c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+        // Открываем в дефолтном браузере
+        ShellExecuteW(nullptr, L"open", request->GetURL().ToWString().c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+        return true;
+    }
+
+    std::string path = UrlToFilePath(request->GetURL());
+
+    // Ссылка на несуществующий локальный файл
+    if (!std::filesystem::exists(path))
+        return false; // Используем стандартный обработчик
+
+    // Если это локальный pdf-файл, открываем в самой программе
+    if (EndsWith(path, ".pdf"))
+        return false; // Обрабатываем стандартным способом
+
+    // Если это не md-файл, то открываем папку с этим файлом в проводнике
+    if (!EndsWith(path, ".md"))
+    {
+        // Если это файл, то определяем директорию, в которой расположен этот файл
+        if (!std::filesystem::is_directory(path))
+        {
+            std::filesystem::path p(path);
+            path = p.parent_path().string();
+        }
+
+        // Открываем папку в проводнике
+        ShellExecuteW(nullptr, L"open", Utf8ToWStr(path).c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+
         return true;
     }
 
