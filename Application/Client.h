@@ -72,6 +72,13 @@ public:
         return this;
     }
 
+    // Вызывается при клике по ссылке перед переходом по этой ссылке
+    bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser
+        , CefRefPtr<CefFrame> frame
+        , CefRefPtr<CefRequest> request
+        , bool user_gesture
+        , bool is_redirect) override;
+
     // =========== Методы CefResourceRequestHandler
 
     // Вызывается перед загрузкой ресурса (страницы, картинки и т.д.)

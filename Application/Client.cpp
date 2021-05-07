@@ -15,6 +15,8 @@
 #include <include/cef_parser.h>
 #include <include/cef_path_util.h>
 
+#include <shellapi.h> // Для ShellExecuteA
+
 
 namespace
 {
@@ -337,6 +339,27 @@ bool Client::OnOpenURLFromTab(CefRefPtr<CefBrowser> browser
 }
 
 
+// Ссылки, ведущие на внешние сайты, открываем в дефолтном браузере, а не в этой программе
+bool Client::OnBeforeBrowse(CefRefPtr<CefBrowser> browser
+    , CefRefPtr<CefFrame> frame
+    , CefRefPtr<CefRequest> request
+    , bool user_gesture
+    , bool is_redirect)
+{
+    CefURLParts urlParts;
+    if (!CefParseURL(request->GetURL(), urlParts)) // Не удалось разделить на компоненты
+        return false; // Обрабатывается стандартными методами
+
+    if (CefString(&urlParts.scheme) != "file") // Это не файл
+    {
+        ShellExecuteA(nullptr, "open", request->GetURL().ToString().c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+        return true;
+    }
+
+    return false; // Обрабатываем стандартным способом
+}
+
+
 void Client::OpenNewWindow(const std::string& url)
 {
     CefBrowserSettings browserSettings;
@@ -454,7 +477,7 @@ bool Client::OnContextMenuCommand(CefRefPtr<CefBrowser> browser
         HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, url.length() + 1);
         memcpy(GlobalLock(hMem), url.c_str(), url.length() + 1);
         GlobalUnlock(hMem);
-        OpenClipboard(0);
+        OpenClipboard(nullptr);
         EmptyClipboard();
         SetClipboardData(CF_TEXT, hMem);
         CloseClipboard();
