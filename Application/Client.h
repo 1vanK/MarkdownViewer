@@ -39,7 +39,7 @@ public:
 
     // =========== Методы CefLifeSpanHandler
     
-    // Взывается при открытии нового окна
+    // Вызывается при открытии нового окна
     void OnAfterCreated(CefRefPtr<CefBrowser> browser) override;
     // Вызывается при закрытии окна
     void OnBeforeClose(CefRefPtr<CefBrowser> browser) override;
