@@ -13,6 +13,7 @@ class Client
     , public CefResourceRequestHandler
     , public CefKeyboardHandler
     , public CefLoadHandler
+    , public CefContextMenuHandler
 {
 private:
     // Реализуем счетчик ссылок
@@ -35,7 +36,8 @@ public:
     CefRefPtr<CefDisplayHandler> GetDisplayHandler() override { return this; }
     CefRefPtr<CefRequestHandler> GetRequestHandler() override { return this; }
     CefRefPtr<CefKeyboardHandler> GetKeyboardHandler() override { return this; }
-    CefRefPtr<CefLoadHandler> GetLoadHandler() { return this; }
+    CefRefPtr<CefLoadHandler> GetLoadHandler() override { return this; }
+    CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() override { return this; }
 
     // =========== Методы CefLifeSpanHandler
     
@@ -97,4 +99,20 @@ public:
         , CefRefPtr<CefFrame> frame, ErrorCode errorCode
         , const CefString& errorText,
         const CefString& failedUrl) override;
+
+    // =========== Методы CefContextMenuHandler
+
+    // Вызывается перед открытием контекстного меню
+    void OnBeforeContextMenu(CefRefPtr<CefBrowser> browser
+        , CefRefPtr<CefFrame> frame
+        , CefRefPtr<CefContextMenuParams> params
+        , CefRefPtr<CefMenuModel> model) override;
+
+    // Вызывается при клике по пункту контекстного меню
+    bool OnContextMenuCommand(CefRefPtr<CefBrowser> browser
+        , CefRefPtr<CefFrame> frame
+        , CefRefPtr<CefContextMenuParams> params
+        , int command_id
+        , EventFlags event_flags) override;
 };
+

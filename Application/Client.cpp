@@ -379,7 +379,8 @@ void Client::OnLoadError(CefRefPtr<CefBrowser> browser
     // (при Backspace повторяется попытка открыть тот же несуществующий локальный файл
     // и снова ошибка; надо как-то редактировать историю страниц)
     std::stringstream ss;
-    ss << "<html><body bgcolor=\"white\">"
+    ss <<
+        "<html><body bgcolor=\"white\">"
         "<h2>Failed to load URL "
         << std::string(failedUrl) << " with error " << std::string(errorText)
         << " (" << errorCode << ").</h2></body></html>";
@@ -387,4 +388,60 @@ void Client::OnLoadError(CefRefPtr<CefBrowser> browser
     // Эта страница добавляется в историю и это печаль,
     // а frame->LoadString() удален
     frame->LoadURL(GetDataURI(ss.str(), "text/html"));
+}
+
+
+enum MyContextMenuItem
+{
+    CLIENT_ID_COPY_URL
+};
+
+
+void Client::OnBeforeContextMenu(CefRefPtr<CefBrowser> browser
+    , CefRefPtr<CefFrame> frame
+    , CefRefPtr<CefContextMenuParams> params
+    , CefRefPtr<CefMenuModel> model)
+{
+    CEF_REQUIRE_UI_THREAD();
+
+    // Если это контекстное меню для ссылки
+    if (params->GetTypeFlags() & CM_TYPEFLAG_LINK)
+    {
+        // Добавляем разделитель, если в контекстном меню уже есть пункты
+        if (model->GetCount() > 0)
+            model->AddSeparator();
+
+        // Добавляем в контекстное меню пункт для копирования ссылки
+        model->AddItem(CLIENT_ID_COPY_URL, "Копировать ссы&лку");
+    }
+}
+
+
+bool Client::OnContextMenuCommand(CefRefPtr<CefBrowser> browser
+    , CefRefPtr<CefFrame> frame
+    , CefRefPtr<CefContextMenuParams> params
+    , int command_id
+    , EventFlags event_flags)
+{
+    CEF_REQUIRE_UI_THREAD();
+
+    // Копируем ссылку в буфер обмена
+    if (command_id == CLIENT_ID_COPY_URL)
+    {
+        std::string url = params->GetLinkUrl().ToString();
+
+        // Используются функции WinAPI
+        HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, url.length() + 1);
+        memcpy(GlobalLock(hMem), url.c_str(), url.length() + 1);
+        GlobalUnlock(hMem);
+        OpenClipboard(0);
+        EmptyClipboard();
+        SetClipboardData(CF_TEXT, hMem);
+        CloseClipboard();
+
+        return true;
+    }
+
+    // Это не наш пункт меню. Будет использован дефолтный обработчик
+    return false;
 }
