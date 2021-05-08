@@ -48,7 +48,7 @@
 ## Компиляция
 
 1. Скачайте содержимое репозитория в папку Repository: `git clone https://github.com/1vanK/MarkdownViewer.git Repository`
-2. Скачайте <http://opensource.spotify.com/cefbuilds/cef_binary_78.3.9%2Bgc7345f2%2Bchromium-78.0.3904.108_windows32.tar.bz2>
+2. Скачайте <https://cef-builds.spotifycdn.com/cef_binary_90.6.5%2Bg7a604aa%2Bchromium-90.0.4430.93_windows32.tar.bz2>
    и поместите содержимое папки cef_binary_* из архива в папку `Repository/ThirdParty/cef_win32` **без** перезаписи
 3. В родительском каталоге создайте и выполните .bat-файл:
 ```
