@@ -24,7 +24,7 @@ add_subdirectory(ThirdParty/cmark-gfm)
 
 # Подключаем Chromium Embedded Framework
 set(USE_SANDBOX OFF CACHE BOOL "Enable or disable use of the sandbox.") # Подменяем опцию и отключаем песочницу
-set(CEF_ROOT "${CMAKE_HOME_DIRECTORY}/ThirdParty/cef_win32")
+set(CEF_ROOT "${CMAKE_HOME_DIRECTORY}/ThirdParty/cef_win64")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CEF_ROOT}/cmake")
 find_package(CEF REQUIRED)
 add_subdirectory(${CEF_LIBCEF_DLL_WRAPPER_PATH} libcef_dll_wrapper)

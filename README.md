@@ -48,7 +48,7 @@
 ## Компиляция
 
 1. Скачайте содержимое репозитория в папку Repository: `git clone https://github.com/1vanK/MarkdownViewer.git Repository`
-2. Скачайте <https://cef-builds.spotifycdn.com/cef_binary_90.6.5%2Bg7a604aa%2Bchromium-90.0.4430.93_windows32.tar.bz2>
+2. Скачайте <https://cef-builds.spotifycdn.com/cef_binary_99.2.12%2Bg2977b3a%2Bchromium-99.0.4844.74_windows64.tar.bz2>
    и поместите содержимое папки cef_binary_* из архива в папку `Repository/ThirdParty/cef_win32` **без** перезаписи
 3. В родительском каталоге создайте и выполните .bat-файл:
 ```
@@ -57,7 +57,7 @@ set "PATH=c:\Programs\CMake\bin"
 ::rmdir /s /q Result
 mkdir Build
 cd Build
-cmake.exe ../Repository -G "Visual Studio 16" -A Win32
+cmake.exe ../Repository -G "Visual Studio 17" -A x64
 cmake --build . --config Release
 ::cmake --build . --config Debug
 pause
@@ -66,7 +66,7 @@ pause
 
 ## Примечания
 
-Программа протестирована на Windows 10 x64. Но должна работать и на 32-битной Windows.
+Программа протестирована на Windows 10 x64.
 Теоретически программу можно портировать на любую ОС, так как все используемые библиотеки кроссплатформенные.
 
 Кэш программы пишется в директорию Cache в папке с программой. Эту папку можно удалять, чтобы очистить кэш.

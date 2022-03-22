@@ -403,10 +403,10 @@ void Client::OpenNewWindow(const std::string& url)
     // прорисовки будут артефакты.
     RECT rect;
     SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0);
-    windowInfo.x = rect.left;
-    windowInfo.y = rect.top;
-    windowInfo.width = rect.right - rect.left;
-    windowInfo.height = rect.bottom - rect.top;
+    windowInfo.bounds.x = rect.left;
+    windowInfo.bounds.y = rect.top;
+    windowInfo.bounds.width = rect.right - rect.left;
+    windowInfo.bounds.height = rect.bottom - rect.top;
 #endif
 
     // Создаем окно с браузером
