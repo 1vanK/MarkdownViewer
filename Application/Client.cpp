@@ -420,9 +420,22 @@ void Client::OnTitleChange(CefRefPtr<CefBrowser> browser, const CefString& title
 
     // Если в адресе закодирована страница, то не помещаем эту жуть в заголовок
     if (StartsWith(title.ToString(), "data:"))
-        TitleChange(browser, PROGRAM_TITLE);
+        title_ = PROGRAM_TITLE;
     else
-        TitleChange(browser, title);
+        title_ = title;
+
+    TitleChange(browser, title_);
+}
+
+
+void Client::OnStatusMessage(CefRefPtr<CefBrowser> browser, const CefString& value)
+{
+    CEF_REQUIRE_UI_THREAD();
+
+    if (value.empty()) // Если мышка не над ссылкой, то восстанавливаем заголовок окна
+        TitleChange(browser, title_);
+    else
+        TitleChange(browser, CefURIDecode(value, true, UU_NORMAL));
 }
 
 
@@ -460,7 +473,12 @@ void Client::OnLoadError(CefRefPtr<CefBrowser> browser
 
 enum MyContextMenuItem
 {
-    CLIENT_ID_COPY_URL
+    // Закодированная ссылка, в которой кирилица представлена в виде %XX
+    CLIENT_ID_COPY_URL,
+
+    // Декодированная ссылка, в которой русские буквы выглядят нормально
+    // (но пробел всё еще закодирован как %20)
+    CLIENT_ID_COPY_DECODED_URL
 };
 
 
@@ -478,8 +496,9 @@ void Client::OnBeforeContextMenu(CefRefPtr<CefBrowser> browser
         if (model->GetCount() > 0)
             model->AddSeparator();
 
-        // Добавляем в контекстное меню пункт для копирования ссылки
-        model->AddItem(CLIENT_ID_COPY_URL, "Копировать ссы&лку");
+        // Добавляем в контекстное меню пункты для копирования ссылки
+        model->AddItem(CLIENT_ID_COPY_URL, "Копировать ссылку");
+        model->AddItem(CLIENT_ID_COPY_DECODED_URL, "Копировать декодированную ссылку");
     }
 }
 
@@ -501,9 +520,29 @@ bool Client::OnContextMenuCommand(CefRefPtr<CefBrowser> browser
         HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, url.length() + 1);
         memcpy(GlobalLock(hMem), url.c_str(), url.length() + 1);
         GlobalUnlock(hMem);
+        
         OpenClipboard(nullptr);
         EmptyClipboard();
         SetClipboardData(CF_TEXT, hMem);
+        CloseClipboard();
+
+        return true;
+    }
+
+    // Декодируем ссылку и копируем в буфер обмена
+    if (command_id == CLIENT_ID_COPY_DECODED_URL)
+    {
+        std::wstring url = CefURIDecode(params->GetLinkUrl(), true, UU_NORMAL).ToWString();
+
+        // Используются функции WinAPI
+        HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, (url.length() + 1) * sizeof(wchar_t));
+        wchar_t* buffer = (wchar_t*)GlobalLock(hMem);
+        wcscpy_s(buffer, url.length() + 1, url.c_str());
+        GlobalUnlock(hMem);
+        
+        OpenClipboard(nullptr);
+        EmptyClipboard();
+        SetClipboardData(CF_UNICODETEXT, hMem);
         CloseClipboard();
 
         return true;

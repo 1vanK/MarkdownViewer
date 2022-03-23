@@ -23,6 +23,10 @@ private:
     // при закрытии последнего окна
     int browserCount_ = 0;
 
+    // Заголовок окна используется для вывода ссылки, над которой находится курсор мыши.
+    // Храним настоящий текст заголовка, чтобы иметь возможность восстанавить его
+    CefString title_;
+
 public:
     Client()
     {
@@ -51,6 +55,10 @@ public:
     // Вызывается при необходимости сменить заголовок окна
     void OnTitleChange(CefRefPtr<CefBrowser> browser
         , const CefString& title) override;
+
+    // Вызывается, когда мышка находится над ссылкой
+    void OnStatusMessage(CefRefPtr<CefBrowser> browser
+        , const CefString& value) override;
 
     // =========== Методы CefRequestHandler
 
