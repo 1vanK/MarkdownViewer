@@ -49,7 +49,7 @@
 
 1. Скачайте содержимое репозитория в папку Repository: `git clone https://github.com/1vanK/MarkdownViewer.git Repository`
 2. Скачайте <https://cef-builds.spotifycdn.com/cef_binary_99.2.12%2Bg2977b3a%2Bchromium-99.0.4844.74_windows64.tar.bz2>
-   и поместите содержимое папки cef_binary_* из архива в папку `Repository/ThirdParty/cef_win32` **без** перезаписи
+   и поместите содержимое папки cef_binary_* из архива в папку `Repository/ThirdParty/cef_win64` **без** перезаписи
 3. В родительском каталоге создайте и выполните .bat-файл:
 ```
 set "PATH=c:\Programs\CMake\bin"
