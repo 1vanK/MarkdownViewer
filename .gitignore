@@ -1,9 +1,10 @@
 # Рекурсивно игнорируем все файлы
-ThirdParty/cef_win64/**
+third_party/cef/**
 
 # но не директории
-!ThirdParty/cef_win64/**/
+!third_party/cef/**/
 
 # чтобы оставить файлы
-!ThirdParty/cef_win64/cmake/cef_variables.cmake
-!ThirdParty/cef_win64/MyNotes.md
+!third_party/cef/cmake/cef_variables.cmake
+!third_party/cef/прочти меня.md
+

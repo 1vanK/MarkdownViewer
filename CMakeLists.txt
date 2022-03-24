@@ -19,12 +19,12 @@ option(CMARK_TESTS "" OFF)
 option(CMARK_STATIC "" ON)
 option(CMARK_SHARED "" OFF)
 option(CMARK_LIB_FUZZER "" OFF)
-add_subdirectory(ThirdParty/cmark-gfm)
+add_subdirectory(third_party/cmark-gfm)
 
 
 # Подключаем Chromium Embedded Framework
 set(USE_SANDBOX OFF CACHE BOOL "Enable or disable use of the sandbox.") # Подменяем опцию и отключаем песочницу
-set(CEF_ROOT "${CMAKE_HOME_DIRECTORY}/ThirdParty/cef_win64")
+set(CEF_ROOT "${CMAKE_HOME_DIRECTORY}/third_party/cef")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CEF_ROOT}/cmake")
 find_package(CEF REQUIRED)
 add_subdirectory(${CEF_LIBCEF_DLL_WRAPPER_PATH} libcef_dll_wrapper)
@@ -46,9 +46,9 @@ add_executable(${PROJ_NAME} WIN32 ${CEFSIMPLE_SRCS})
 # cmark
 target_link_libraries(${PROJ_NAME} libcmark-gfm-extensions_static libcmark-gfm_static)
 include_directories(
-    ${CMAKE_HOME_DIRECTORY}/ThirdParty/cmark-gfm/src
-    ${PROJECT_BINARY_DIR}/ThirdParty/cmark-gfm/src
-    ${PROJECT_BINARY_DIR}/ThirdParty/cmark-gfm/extensions
+    ${CMAKE_HOME_DIRECTORY}/third_party/cmark-gfm/src
+    ${PROJECT_BINARY_DIR}/third_party/cmark-gfm/src
+    ${PROJECT_BINARY_DIR}/third_party/cmark-gfm/extensions
 )
 set_property(TARGET libcmark-gfm_static PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>") # Используем статический /MT
 set_property(TARGET libcmark-gfm-extensions_static PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>") # / MT

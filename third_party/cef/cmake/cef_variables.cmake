@@ -1,4 +1,4 @@
-# Изменено для IMV. Изменения помечены комментом # MY
+# Изменено для IMV. Изменения помечены комментом # IMV
 
 # Copyright (c) 2016 The Chromium Embedded Framework Authors. All rights
 # reserved. Use of this source code is governed by a BSD-style license that
@@ -408,7 +408,7 @@ if(OS_WINDOWS)
     /Gy           # Enable function-level linking
     /GR-          # Disable run-time type information
     /W4           # Warning level 4
-#    /WX           # Treat warnings as errors # MY
+#    /WX           # Treat warnings as errors # IMV
     /wd4100       # Ignore "unreferenced formal parameter" warning
     /wd4127       # Ignore "conditional expression is constant" warning
     /wd4244       # Ignore "conversion possible loss of data" warning
@@ -438,7 +438,7 @@ if(OS_WINDOWS)
     )
   list(APPEND CEF_COMPILER_DEFINES
     WIN32 _WIN32 _WINDOWS             # Windows platform
-#    UNICODE _UNICODE                  # Unicode build # MY
+#    UNICODE _UNICODE                  # Unicode build # IMV
     WINVER=0x0601 _WIN32_WINNT=0x601  # Targeting Windows 7
     NOMINMAX                          # Use the standard's templated min/max
     WIN32_LEAN_AND_MEAN               # Exclude less common API declarations
