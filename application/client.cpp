@@ -1,9 +1,9 @@
-#include "Client.h"
-#include "Utils.h"
-#include "CefUtils.h"
-#include "Platform.h"
+#include "client.h"
+#include "utils.h"
+#include "cef_utils.h"
+#include "platform.h"
 #include "Consts.h"
-#include "UserPlugin.h"
+#include "user_plugin.h"
 
 // cmark-gfm
 #include <parser.h>

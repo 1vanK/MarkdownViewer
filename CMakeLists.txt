@@ -41,7 +41,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${OUT_DIR})
 
 
 # Создаем проект приложения
-file(GLOB_RECURSE CEFSIMPLE_SRCS "Application/*.h" "Application/*.cpp" "Resources/Windows/*.rc")
+file(GLOB_RECURSE CEFSIMPLE_SRCS "application/*.h" "application/*.cpp" "Resources/Windows/*.rc")
 add_executable(${PROJ_NAME} WIN32 ${CEFSIMPLE_SRCS})
 # cmark
 target_link_libraries(${PROJ_NAME} libcmark-gfm-extensions_static libcmark-gfm_static)

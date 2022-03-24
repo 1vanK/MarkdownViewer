@@ -1,4 +1,4 @@
-#include "../Platform.h"
+#include "platform.h"
 
 
 void TitleChange(CefRefPtr<CefBrowser> browser, const CefString& title)

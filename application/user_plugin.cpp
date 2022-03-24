@@ -1,4 +1,4 @@
-#include "UserPlugin.h"
+#include "user_plugin.h"
 
 
 #ifdef MY_PLUGIN_SYSTEM

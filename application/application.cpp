@@ -1,5 +1,5 @@
-#include "Application.h"
-#include "Client.h"
+#include "application.h"
+#include "client.h"
 
 // CEF
 #include <include/wrapper/cef_helpers.h>
