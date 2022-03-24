@@ -95,7 +95,7 @@ public:
         , CefRefPtr<CefRequest> request) override;
 
     // Позволяет изменять содержимое ресурса после загрузки и перед парсингом
-    CefRefPtr<CefResponseFilter> Client::GetResourceResponseFilter
+    CefRefPtr<CefResponseFilter> GetResourceResponseFilter
         (CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame
         , CefRefPtr<CefRequest> request
         , CefRefPtr<CefResponse> response) override;
