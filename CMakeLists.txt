@@ -35,7 +35,7 @@ ADD_LOGICAL_TARGET("libcef_lib" "${CEF_LIB_DEBUG}" "${CEF_LIB_RELEASE}")
 
 
 # Куда будет помещен скомпилированный исполняемый файл
-set(OUT_DIR ${CMAKE_HOME_DIRECTORY}/../Result)
+set(OUT_DIR ${CMAKE_BINARY_DIR}/result)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${OUT_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${OUT_DIR})
 

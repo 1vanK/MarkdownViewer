@@ -45,24 +45,47 @@
 * cmark-gfm
 * KaTeX
 
-## Компиляция
+## Компиляция в Windows
 
-1. Скачайте содержимое репозитория в папку Repository: `git clone https://github.com/1vanK/MarkdownViewer.git Repository`
-2. Скачайте <https://cef-builds.spotifycdn.com/cef_binary_99.2.12%2Bg2977b3a%2Bchromium-99.0.4844.74_windows64.tar.bz2>
-   и поместите содержимое папки cef_binary_* из архива в папку `Repository/third_party/cef` **без** перезаписи
-3. В родительском каталоге создайте и выполните .bat-файл:
+1. Создайте пустую папку, а в ней bat-файл:
 ```
-set "PATH=c:\Programs\CMake\bin"
-::rmdir /s /q Build
-::rmdir /s /q Result
-mkdir Build
-cd Build
-cmake.exe ../Repository -G "Visual Studio 17" -A x64
-cmake --build . --config Release
-::cmake --build . --config Debug
+:: Меняем кодировку консоли на UTF-8
+chcp 65001
+
+:: Путь к git.exe
+set "PATH=c:\program files\git\bin"
+
+:: Качаем репозиторий в папку repo
+git clone https://github.com/1vanK/MarkdownViewer repo
+
+:: Ждём нажатие Enter перед закрытием консоли
 pause
 ```
-4. Результат сборки будет помещен в папку Result
+2. Запустите этот батник, чтобы скачать репозиторий
+3. Скачайте <https://cef-builds.spotifycdn.com/cef_binary_99.2.12%2Bg2977b3a%2Bchromium-99.0.4844.74_windows64.tar.bz2>
+   и поместите содержимое папки cef_binary_* из архива в папку `repo/third_party/cef` **без** перезаписи
+4. Создайте и выполните bat-файл:
+```
+:: Меняем кодировку консоли на UTF-8
+chcp 65001
+
+:: Указываем путь к cmake.exe
+set "PATH=c:\programs\cmake\bin"
+
+:: Удаляем папку build_vs
+rmdir /s /q build_vs
+
+:: Создаём проекты для Visual Studio 2022 в папке build_vs, используя конфиг CMakeLists.txt из папки repo
+cmake repo -B build_vs -G "Visual Studio 17" -A x64
+
+:: Компилируем проекты в папке build_vs
+::cmake --build build_vs --config Debug
+cmake --build build_vs --config Release
+
+:: Ждём нажатие Enter перед закрытием консоли
+pause
+```
+5. Результат сборки будет помещен в папку `build/result`
 
 ## Примечания
 
