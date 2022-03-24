@@ -1,3 +1,5 @@
+# Изменено для IMV. Изменения помечены комментом # IMV
+
 if(${CMAKE_VERSION} VERSION_GREATER "3.3")
     cmake_policy(SET CMP0063 NEW)
 endif()
@@ -59,7 +61,7 @@ set(LIBRARY_SOURCES
   ${HEADERS}
   )
 
-# MY
+# IMV: закомментировано
 #set(PROGRAM "cmark-gfm")
 #set(PROGRAM_SOURCES main.c)
 
@@ -76,7 +78,7 @@ include (GenerateExportHeader)
 include("../CheckFileOffsetBits.cmake")
 CHECK_FILE_OFFSET_BITS()
 
-# MY
+# IMV: закомментировано
 #add_executable(${PROGRAM} ${PROGRAM_SOURCES})
 #
 #if(CMARK_SHARED)
@@ -144,7 +146,7 @@ if (CMARK_STATIC)
   list(APPEND CMARK_INSTALL ${STATICLIBRARY})
 endif()
 
-# MY
+# IMV: закомментировано
 #if (MSVC)
 #  set_property(TARGET ${PROGRAM}
 #    APPEND PROPERTY LINK_FLAGS /INCREMENTAL:NO)
@@ -157,7 +159,7 @@ endif()
 
 set(libdir lib${LIB_SUFFIX})
 
-# MY
+# IMV: закомментировано
 #install(TARGETS ${PROGRAM} ${CMARK_INSTALL}
 #  EXPORT cmark-gfm
 #  RUNTIME DESTINATION bin
@@ -179,7 +181,8 @@ if(CMARK_SHARED OR CMARK_STATIC)
     DESTINATION include
     )
 
-  #install(EXPORT cmark-gfm DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake) # MY
+# IMV: закомментировано
+#  install(EXPORT cmark-gfm DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake)
 endif()
 
 # Feature tests
@@ -200,7 +203,7 @@ CONFIGURE_FILE(
   ${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
-# MY
+# IMV: закомментировано
 ## Always compile with warnings
 #if(MSVC)
 #  # Force to always compile with W4

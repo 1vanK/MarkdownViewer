@@ -1,10 +1,12 @@
+# Изменено для IMV. Изменения помечены комментом # IMV
+
 cmake_minimum_required(VERSION 3.0)
 project(cmark-gfm)
 
 set(PROJECT_VERSION_MAJOR 0)
 set(PROJECT_VERSION_MINOR 29)
 set(PROJECT_VERSION_PATCH 0)
-set(PROJECT_VERSION_GFM 0)
+set(PROJECT_VERSION_GFM 3)
 set(PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}.gfm.${PROJECT_VERSION_GFM})
 
 include("FindAsan.cmake")
@@ -24,7 +26,7 @@ add_subdirectory(extensions)
 if(CMARK_TESTS AND (CMARK_SHARED OR CMARK_STATIC))
   add_subdirectory(api_test)
 endif()
-#add_subdirectory(man) # MY
+#add_subdirectory(man) # IMV: закомментировано
 if(CMARK_TESTS)
   enable_testing()
   add_subdirectory(test testdir)

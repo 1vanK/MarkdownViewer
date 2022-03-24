@@ -1,3 +1,5 @@
+# Изменено для IMV. Изменения помечены комментом # IMV
+
 cmake_minimum_required(VERSION 2.8)
 set(LIBRARY "libcmark-gfm-extensions")
 set(STATICLIBRARY "libcmark-gfm-extensions_static")
@@ -107,7 +109,7 @@ CHECK_C_SOURCE_COMPILES("
   int main() { return 0; }
 " HAVE___ATTRIBUTE__)
 
-# MY
+# IMV: закомментировано
 ## Always compile with warnings
 #if(MSVC)
 #  # Force to always compile with W4
