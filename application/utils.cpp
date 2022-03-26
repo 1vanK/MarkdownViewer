@@ -1,6 +1,8 @@
 #include "utils.h"
 
+#ifdef _WIN32
 #include <Windows.h>
+#endif
 
 
 bool CompareCharsIgnoreCase(char c1, char c2)
@@ -42,6 +44,7 @@ void CreateDirectories(const fs::path& filePath)
 
 std::wstring Utf8ToWStr(const std::string& str)
 {
+#ifdef _WIN32
     // Вычисляем длину
     int size = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, 0, 0);
     
@@ -55,4 +58,7 @@ std::wstring Utf8ToWStr(const std::string& str)
         return std::wstring();
 
     return result;
+#else
+    return std::wstring();
+#endif
 }

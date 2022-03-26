@@ -1,5 +1,6 @@
 #include "application.h"
 #include "client.h"
+#include "utils.h"
 
 // CEF
 #include <include/wrapper/cef_helpers.h>
@@ -34,7 +35,14 @@ static std::string GetUrl()
     commandLine->GetArguments(arguments);
 
     if (!arguments.empty())
-        return arguments.front();
+    {
+        std::string path = arguments.front().ToString();
+        
+        if (!StartsWith(path, "http:"))
+            path = "file:" + path;
+        
+        return path;
+    }
 
     return "about:blank";
 }

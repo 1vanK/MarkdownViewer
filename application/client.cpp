@@ -2,7 +2,7 @@
 #include "utils.h"
 #include "cef_utils.h"
 #include "platform.h"
-#include "Consts.h"
+#include "consts.h"
 #include "user_plugin.h"
 
 // cmark-gfm
@@ -15,7 +15,9 @@
 #include <include/cef_parser.h>
 #include <include/cef_path_util.h>
 
+#ifdef _WIN32
 #include <shellapi.h> // Для ShellExecuteA
+#endif
 
 
 namespace
@@ -66,7 +68,7 @@ std::string UrlToFilePath(const std::string& url)
         return url;
 
     // Убираем / в начале path
-    ret = ret.substr(1);
+    //ret = ret.substr(1);
 
     // Кириллица и пробелы закодированы
     cef_uri_unescape_rule_t rule = static_cast<cef_uri_unescape_rule_t>
@@ -273,8 +275,12 @@ CefRefPtr<CefResourceHandler> Client::GetResourceHandler
     if (CefString(&urlParts.scheme) != "file")
         return nullptr;
 
+    LOG(INFO) << "URL " <<  request->GetURL();
+        
     // Отбрасываем ?tag=...
     std::string path = UrlToFilePath(request->GetURL());
+    
+    LOG(INFO) << "PATH " <<  path;
 
     // Если это не *.md-файл, то используем стандартный обработчик
     if (!EndsWith(path, ".md"))
@@ -283,7 +289,10 @@ CefRefPtr<CefResourceHandler> Client::GetResourceHandler
     // Создаем поток для чтения файла
     CefRefPtr<CefStreamReader> reader = CefStreamReader::CreateForFile(path);
     if (!reader)
+    {
+        LOG(INFO) <<  "BEDA";
         return nullptr;
+    }
 
     return new CefStreamResourceHandler("text/html", reader);
 }
@@ -349,8 +358,12 @@ bool Client::OnBeforeBrowse(CefRefPtr<CefBrowser> browser
 
     if (CefString(&urlParts.scheme) != "file") // Это не локальный файл
     {
+#ifdef _WIN32
         // Открываем в дефолтном браузере
         ShellExecuteW(nullptr, L"open", request->GetURL().ToWString().c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+#else
+        LOG(INFO) << "Нужно открыть в браузере " <<  request->GetURL();
+#endif
         return true;
     }
 
@@ -374,9 +387,13 @@ bool Client::OnBeforeBrowse(CefRefPtr<CefBrowser> browser
             path = p.parent_path().string();
         }
 
+#ifdef _WIN32
         // Открываем папку в проводнике
         ShellExecuteW(nullptr, L"open", Utf8ToWStr(path).c_str(), nullptr, nullptr, SW_SHOWNORMAL);
-
+#else
+        LOG(INFO) << "Нужно открыть в проводнике " << path;
+#endif
+        
         return true;
     }
 
@@ -516,6 +533,7 @@ bool Client::OnContextMenuCommand(CefRefPtr<CefBrowser> browser
     {
         std::string url = params->GetLinkUrl().ToString();
 
+#ifdef _WIN32
         // Используются функции WinAPI
         HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, url.length() + 1);
         memcpy(GlobalLock(hMem), url.c_str(), url.length() + 1);
@@ -525,6 +543,9 @@ bool Client::OnContextMenuCommand(CefRefPtr<CefBrowser> browser
         EmptyClipboard();
         SetClipboardData(CF_TEXT, hMem);
         CloseClipboard();
+#else
+        LOG(INFO) << "Нужно скопировать в буфер обмена";
+#endif
 
         return true;
     }
@@ -534,6 +555,7 @@ bool Client::OnContextMenuCommand(CefRefPtr<CefBrowser> browser
     {
         std::wstring url = CefURIDecode(params->GetLinkUrl(), true, UU_NORMAL).ToWString();
 
+#ifdef _WIN32
         // Используются функции WinAPI
         HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, (url.length() + 1) * sizeof(wchar_t));
         wchar_t* buffer = (wchar_t*)GlobalLock(hMem);
@@ -544,6 +566,9 @@ bool Client::OnContextMenuCommand(CefRefPtr<CefBrowser> browser
         EmptyClipboard();
         SetClipboardData(CF_UNICODETEXT, hMem);
         CloseClipboard();
+#else
+        LOG(INFO) << "Нужно скопировать в буфер обмена";
+#endif
 
         return true;
     }

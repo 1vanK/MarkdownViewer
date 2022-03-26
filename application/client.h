@@ -80,7 +80,7 @@ public:
         return this;
     }
 
-    // Вызывается при клике по ссылке перед переходом по этой ссылке
+    // Вызывается перед переходом по ссылке
     bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser
         , CefRefPtr<CefFrame> frame
         , CefRefPtr<CefRequest> request

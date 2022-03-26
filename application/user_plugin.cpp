@@ -4,7 +4,9 @@
 #ifdef MY_PLUGIN_SYSTEM
 
 
-#include "Utils.h"
+#include "utils.h"
+
+#include <algorithm> // std::replace
 
 
 // Каталог, в котором находится папка с таким названием, считается корневым

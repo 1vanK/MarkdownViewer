@@ -2,12 +2,12 @@ cmake_minimum_required(VERSION 3.15.5)
 
 
 # Название решения (solution)
-set(SOLUTION_NAME Solution)
+set(SOLUTION_NAME solution)
 project(${SOLUTION_NAME})
 
 
 # Имя проекта и исполняемого файла (переменная PROJECT_NAME уже занята)
-set(PROJ_NAME IMV)
+set(PROJ_NAME imv)
 
 
 # Оставляем только две конфигурации
@@ -58,6 +58,7 @@ SET_EXECUTABLE_TARGET_PROPERTIES(${PROJ_NAME})
 target_link_libraries(${PROJ_NAME} libcef_lib libcef_dll_wrapper ${CEF_STANDARD_LIBS})
 
 
+if(WIN32)
 # Без манифеста браузер не работает
 add_custom_command(
     TARGET ${PROJ_NAME} POST_BUILD
@@ -66,6 +67,13 @@ add_custom_command(
             -outputresource:"${OUT_DIR}/${PROJ_NAME}.exe"\;\#1
     COMMENT "Adding manifest..."
 )
+else()
+  # Set rpath so that libraries can be placed next to the executable.
+  # Без этого программа не найдет свои ресурсы, если запущена не из текущей папки
+  set_target_properties(${PROJ_NAME} PROPERTIES INSTALL_RPATH "$ORIGIN")
+  set_target_properties(${PROJ_NAME} PROPERTIES BUILD_WITH_INSTALL_RPATH TRUE)
+  set_target_properties(${PROJ_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${OUT_DIR})
+endif()
 
 
 # Копируем файлы в результирующую папку

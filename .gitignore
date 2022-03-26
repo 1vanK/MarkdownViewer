@@ -8,3 +8,5 @@ third_party/cef/**
 !third_party/cef/cmake/cef_variables.cmake
 !third_party/cef/прочти меня.md
 
+# Игнорируем мусор, который создаёт KDevelop
+*.kdev4
