@@ -145,8 +145,8 @@ function CheckTags(article, tags)
 
 function runIndexScript()
 {
-    // Создаём элементы
-    document.body.innerHTML += "<div id='sidebar'/></div><div id='content'/></div>";
+    // Очищаем содержимое файла и создаём элементы
+    document.body.innerHTML = "<div id='sidebar'/></div><div id='content'/></div>";
     PrependHeader();
     AppendFooter();
 
