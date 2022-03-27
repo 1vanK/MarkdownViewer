@@ -39,6 +39,9 @@ static std::string GetUrl()
     {
         std::string path = arguments.front().ToString();
         
+        // В Windows этот код не нужен, так как там легко отличить путь к файлу от ссылки.
+        // А в Linux CEF интерпретирует путь к файлу как ссылку и добавляет http://.
+        // Проблемная функция: https://source.chromium.org/chromium/chromium/src/+/main:components/url_formatter/url_fixer.cc;l=542?q=url_formatter::FixupURL&ss=chromium
         if (!StartsWith(path, "http:") && !StartsWith(path, "file:"))
         {
             // TODO: если путь относительный, то преобразовать его в полный
