@@ -20,6 +20,11 @@
     Кодировка строк в старых функциях зависит от текущей локали.
     Так как в настоящее время кодировка UTF-8 поддерживается повсеместно, то будут использоваться только эти функции.
     Черновик UTF8_STRING: https://www.irif.fr/~jch/software/UTF8_STRING/
+    
+    Что такое atom в X11: https://twiserandom.com/unix/x11/what-is-an-atom-in-x11/index.html
+    XA_WM_NAME vs _NET_WM_NAME: https://stackoverflow.com/questions/7706589/is-there-any-difference-with-the-x11-atoms-xa-wm-name-and-net-wm-name
+    Что такое XDG: https://ru.stackoverflow.com/questions/665740/Объясните-что-такое-xdg-и-xdg-base-directory
+    Спецификация расширений: https://specifications.freedesktop.org/wm-spec/wm-spec-latest.html
 */
 
 
