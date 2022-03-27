@@ -67,8 +67,11 @@ std::string UrlToFilePath(const std::string& url)
     if (!StartsWith(ret, "/"))
         return url;
 
-    // Убираем / в начале path
-    //ret = ret.substr(1);
+#ifdef _WIN32
+    // Убираем / в начале path (/G:/temp/test.md).
+    // В Linux убирать не надо, так как там пути начинаются с /
+    ret = ret.substr(1);
+#endif
 
     // Кириллица и пробелы закодированы
     cef_uri_unescape_rule_t rule = static_cast<cef_uri_unescape_rule_t>

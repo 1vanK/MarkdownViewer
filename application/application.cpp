@@ -28,6 +28,7 @@ Application::~Application()
 }
 
 
+// Извлекает путь к файлу из командной строки
 static std::string GetUrl()
 {
     CefRefPtr<CefCommandLine> commandLine = CefCommandLine::GetGlobalCommandLine();
@@ -38,8 +39,11 @@ static std::string GetUrl()
     {
         std::string path = arguments.front().ToString();
         
-        if (!StartsWith(path, "http:"))
+        if (!StartsWith(path, "http:") && !StartsWith(path, "file:"))
+        {
+            // TODO: если путь относительный, то преобразовать его в полный
             path = "file:" + path;
+        }
         
         return path;
     }
