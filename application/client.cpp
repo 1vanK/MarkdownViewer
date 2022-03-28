@@ -243,28 +243,24 @@ CefRefPtr<CefResponseFilter> Client::GetResourceResponseFilter
 
 void Client::OnAfterCreated(CefRefPtr<CefBrowser> browser)
 {
-  CEF_REQUIRE_UI_THREAD();
+    CEF_REQUIRE_UI_THREAD();
 
-  // Разворачиваем окно после создания
-#if _WIN32
-  CefWindowHandle hwnd = browser->GetHost()->GetWindowHandle();
-  ::ShowWindow(hwnd, SW_SHOWMAXIMIZED);
-#else // Linux
-#endif
+    // Разворачиваем окно после создания
+    MaximizeWindow(browser);
 
-  browserCount_++;
+    browserCount_++;
 }
 
 
 void Client::OnBeforeClose(CefRefPtr<CefBrowser> browser)
 {
-  CEF_REQUIRE_UI_THREAD();
+    CEF_REQUIRE_UI_THREAD();
 
-  browserCount_--;
+    browserCount_--;
 
-  // Если было закрыто последнее окно, то прерываем главный цикл программы
-  if (browserCount_ == 0)
-      CefQuitMessageLoop();
+    // Если было закрыто последнее окно, то прерываем главный цикл программы
+    if (browserCount_ == 0)
+            CefQuitMessageLoop();
 }
 
 

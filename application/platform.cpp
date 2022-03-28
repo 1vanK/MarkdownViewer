@@ -35,6 +35,8 @@
     В X11 копирования в буфер обмена нет, а открывается канал между двумя приложениями, т.е. если скопировать текст и закрыть приложение,
     то вставить уже не получится. Плюс сложно реализовать: нужно обрабатывать события и так далее. Пример: https://github.com/edrosten/x_clipboard/blob/master/selection.cc
     sudo apt install xclip
+    
+    Тутор по X11 (включая разворачивание окна) https://handmade.network/forums/articles/t/2834-tutorial_a_tour_through_xlib_and_related_technologies
 */
 
 
@@ -103,6 +105,36 @@ void SetClipboardText(CefRefPtr<CefBrowser> browser, const CefString& cef_str)
 #endif
 }
 
-void Execute(std::string utf_str)
+void MaximizeWindow(CefRefPtr<CefBrowser> browser)
 {
+#if _WIN32
+    CefWindowHandle hwnd = browser->GetHost()->GetWindowHandle();
+    ::ShowWindow(hwnd, SW_SHOWMAXIMIZED);
+#else // Linux
+    ::Display* display = cef_get_xdisplay();
+    DCHECK(display);
+
+    ::Window window = browser->GetHost()->GetWindowHandle();
+    if (window == kNullWindowHandle)
+        return;
+    
+    XClientMessageEvent ev = {};
+    Atom wmState = XInternAtom(display, "_NET_WM_STATE", False);
+    Atom maxH = XInternAtom(display, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
+    Atom maxV = XInternAtom(display, "_NET_WM_STATE_MAXIMIZED_VERT", False);
+    Atom toggle = XInternAtom(display, "_NET_WM_STATE_TOGGLE", False);
+
+    ev.type = ClientMessage;
+    ev.format = 32;
+    ev.window = window;
+    ev.message_type = wmState;
+    ev.data.l[0] = toggle;
+    ev.data.l[1] = maxH;
+    ev.data.l[2] = maxV;
+    ev.data.l[3] = 1;
+
+    XSendEvent(display, DefaultRootWindow(display), False, SubstructureNotifyMask, (XEvent *)&ev);
+    
+    XFlush(display);
+#endif
 }
