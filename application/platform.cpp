@@ -78,11 +78,11 @@ void TitleChange(CefRefPtr<CefBrowser> browser, const CefString& title)
 void SetClipboardText(CefRefPtr<CefBrowser> browser, const CefString& cef_str)
 {
 #ifdef _WIN32
-    std::wstring str cef_str.ToWString();
+    std::wstring wstr = cef_str.ToWString();
     
-    HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, (url.length() + 1) * sizeof(wchar_t));
+    HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, (wstr.length() + 1) * sizeof(wchar_t));
     wchar_t* buffer = (wchar_t*)GlobalLock(hMem);
-    wcscpy_s(buffer, url.length() + 1, url.c_str());
+    wcscpy_s(buffer, wstr.length() + 1, wstr.c_str());
     GlobalUnlock(hMem);
     
     OpenClipboard(nullptr);
