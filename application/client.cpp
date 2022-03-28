@@ -245,6 +245,13 @@ void Client::OnAfterCreated(CefRefPtr<CefBrowser> browser)
 {
   CEF_REQUIRE_UI_THREAD();
 
+  // Разворачиваем окно после создания
+#if _WIN32
+  CefWindowHandle hwnd = browser->GetHost()->GetWindowHandle();
+  ::ShowWindow(hwnd, SW_SHOWMAXIMIZED);
+#else // Linux
+#endif
+
   browserCount_++;
 }
 
@@ -409,15 +416,12 @@ bool Client::OnBeforeBrowse(CefRefPtr<CefBrowser> browser
 void Client::OpenNewWindow(const std::string& url)
 {
     CefBrowserSettings browserSettings;
-    /* // Пока не знаю, нужно ли это
-    browserSettings.universal_access_from_file_urls = STATE_ENABLED;
-    browserSettings.file_access_from_file_urls = STATE_ENABLED;
-    browserSettings.web_security = STATE_DISABLED;*/
 
     CefWindowInfo windowInfo;
 #if defined(OS_WIN)
     windowInfo.SetAsPopup(nullptr, PROGRAM_TITLE);
 
+#if 0
     // Создаваемое неразвернутое окно будет занимать всю рабочую
     // область экрана (без панели задач).
     // Примечание: Чтобы создать развёрнутое окно, нужно создать его вручную.
@@ -429,6 +433,7 @@ void Client::OpenNewWindow(const std::string& url)
     windowInfo.bounds.y = rect.top;
     windowInfo.bounds.width = rect.right - rect.left;
     windowInfo.bounds.height = rect.bottom - rect.top;
+#endif
 #endif
 
     // Создаем окно с браузером
