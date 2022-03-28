@@ -25,6 +25,16 @@
     XA_WM_NAME vs _NET_WM_NAME: https://stackoverflow.com/questions/7706589/is-there-any-difference-with-the-x11-atoms-xa-wm-name-and-net-wm-name
     Что такое XDG: https://ru.stackoverflow.com/questions/665740/Объясните-что-такое-xdg-и-xdg-base-directory
     Спецификация расширений: https://specifications.freedesktop.org/wm-spec/wm-spec-latest.html
+    
+    Буфер обмена в X11 называется selection. И бывает разных типов: PRIMARY, SECONDARY, CLIPBOARD
+    https://en.wikipedia.org/wiki/X_Window_selection
+    https://stackoverflow.com/questions/1868734/how-to-copy-to-clipboard-with-x11
+    https://superuser.com/questions/200444/why-do-we-have-3-types-of-x-selections-in-linux
+    https://unix.stackexchange.com/questions/139191/whats-the-difference-between-primary-selection-and-clipboard-buffer
+    https://tronche.com/gui/x/icccm/sec-2.html#s-2.6.1
+    В X11 копирования в буфер обмена нет, а открывается канал между двумя приложениями, т.е. если скопировать текст и закрыть приложение,
+    то вставить уже не получится. Плюс сложно реализовать: нужно обрабатывать события и так далее. Пример: https://github.com/edrosten/x_clipboard/blob/master/selection.cc
+    sudo apt install xclip
 */
 
 
@@ -63,4 +73,36 @@ void TitleChange(CefRefPtr<CefBrowser> browser, const CefString& title)
 
     XFlush(display);
 #endif
+}
+
+void SetClipboardText(CefRefPtr<CefBrowser> browser, const CefString& cef_str)
+{
+#ifdef _WIN32
+    std::wstring str cef_str.ToWString();
+    
+    HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, (url.length() + 1) * sizeof(wchar_t));
+    wchar_t* buffer = (wchar_t*)GlobalLock(hMem);
+    wcscpy_s(buffer, url.length() + 1, url.c_str());
+    GlobalUnlock(hMem);
+    
+    OpenClipboard(nullptr);
+    EmptyClipboard();
+    SetClipboardData(CF_UNICODETEXT, hMem);
+    CloseClipboard();
+#elif defined(CEF_X11) // Linux
+    std::string str_utf8 = cef_str.ToString();
+    // TODO: нужно ли экранировать " в строке? бывают ли " в адресе?
+    // -n нужен, чтобы не было \n в конце скопированной строки
+    std::string command = "nohup sh -c 'echo -n \"" + str_utf8 + "\" | xclip -sel c' > /dev/null &";
+    // TODO: После этой команды imv остается висеть в памяти даже после закрытия, так как создается дочерний терминал, с запущенным xclip
+    // Написание команды в виде std::string command = "{echo -n \"" + str_utf8 + "\" | xclip -sel c} &"; не помогает
+    // И это тоже std::string command = "echo -n \"" + str_utf8 + "\" | nohup xclip -sel c &";
+    // И это std::string command = "nohup sh -c 'echo -n \"" + str_utf8 + "\" | xclip -sel c' > /dev/null &";
+    // Но при повторном запуске новых висящий процессов не создается, так как xclip уже запущен
+    system(command.c_str());
+#endif
+}
+
+void Execute(std::string utf_str)
+{
 }

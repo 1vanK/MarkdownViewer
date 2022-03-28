@@ -4,6 +4,10 @@
 #include <include/internal/cef_types.h>
 #include <include/cef_path_util.h>
 
+#if defined(CEF_X11)
+#include <X11/Xlib.h>
+#endif
+
 
 // Автоматически удалять кэш при выходе из программы.
 // Внешние сайты будут открываться дольше, так как изображения,
@@ -54,6 +58,31 @@ static void PrintCommandLine(int argc, char* argv[])
 #endif
 
 
+#if defined(CEF_X11)
+namespace
+{
+
+int XErrorHandlerImpl(Display* display, XErrorEvent* event)
+{
+    LOG(WARNING) << "X error received: "
+                 << "type " << event->type << ", "
+                 << "serial " << event->serial << ", "
+                 << "error_code " << static_cast<int>(event->error_code) << ", "
+                 << "request_code " << static_cast<int>(event->request_code)
+                 << ", "
+                 << "minor_code " << static_cast<int>(event->minor_code);
+   return 0;
+}
+
+int XIOErrorHandlerImpl(Display* display)
+{
+    return 0;
+}
+
+}  // namespace
+#endif  // defined(CEF_X11)
+
+
 // main() в Linux и WinMain() в Windows сводятся к запуску этой функции
 int Run(const CefMainArgs& main_args)
 {
@@ -70,6 +99,13 @@ int Run(const CefMainArgs& main_args)
         return exit_code; // то он уже завершил выполение своей задачи
         
     // Досюда доходит только главный процесс
+    
+#ifdef CEF_X11
+    // Install xlib error handlers so that the application won't be terminated
+    // on non-fatal errors.
+    XSetErrorHandler(XErrorHandlerImpl);
+    XSetIOErrorHandler(XIOErrorHandlerImpl);
+#endif
 
     CefSettings settings;
     settings.no_sandbox = true;

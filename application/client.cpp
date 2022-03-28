@@ -365,7 +365,8 @@ bool Client::OnBeforeBrowse(CefRefPtr<CefBrowser> browser
         // Открываем в дефолтном браузере
         ShellExecuteW(nullptr, L"open", request->GetURL().ToWString().c_str(), nullptr, nullptr, SW_SHOWNORMAL);
 #else
-        LOG(INFO) << "Нужно открыть в браузере " <<  request->GetURL();
+        std::string command = "xdg-open " + request->GetURL().ToString();
+        system(command.c_str());
 #endif
         return true;
     }
@@ -394,7 +395,8 @@ bool Client::OnBeforeBrowse(CefRefPtr<CefBrowser> browser
         // Открываем папку в проводнике
         ShellExecuteW(nullptr, L"open", Utf8ToWStr(path).c_str(), nullptr, nullptr, SW_SHOWNORMAL);
 #else
-        LOG(INFO) << "Нужно открыть в проводнике " << path;
+        std::string command = "xdg-open " + path;
+        system(command.c_str());
 #endif
         
         return true;
@@ -534,45 +536,16 @@ bool Client::OnContextMenuCommand(CefRefPtr<CefBrowser> browser
     // Копируем ссылку в буфер обмена
     if (command_id == CLIENT_ID_COPY_URL)
     {
-        std::string url = params->GetLinkUrl().ToString();
-
-#ifdef _WIN32
-        // Используются функции WinAPI
-        HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, url.length() + 1);
-        memcpy(GlobalLock(hMem), url.c_str(), url.length() + 1);
-        GlobalUnlock(hMem);
-        
-        OpenClipboard(nullptr);
-        EmptyClipboard();
-        SetClipboardData(CF_TEXT, hMem);
-        CloseClipboard();
-#else
-        LOG(INFO) << "Нужно скопировать в буфер обмена";
-#endif
-
+        CefString url = params->GetLinkUrl();
+        SetClipboardText(browser, url);
         return true;
     }
 
     // Декодируем ссылку и копируем в буфер обмена
     if (command_id == CLIENT_ID_COPY_DECODED_URL)
     {
-        std::wstring url = CefURIDecode(params->GetLinkUrl(), true, UU_NORMAL).ToWString();
-
-#ifdef _WIN32
-        // Используются функции WinAPI
-        HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, (url.length() + 1) * sizeof(wchar_t));
-        wchar_t* buffer = (wchar_t*)GlobalLock(hMem);
-        wcscpy_s(buffer, url.length() + 1, url.c_str());
-        GlobalUnlock(hMem);
-        
-        OpenClipboard(nullptr);
-        EmptyClipboard();
-        SetClipboardData(CF_UNICODETEXT, hMem);
-        CloseClipboard();
-#else
-        LOG(INFO) << "Нужно скопировать в буфер обмена";
-#endif
-
+        CefString url = CefURIDecode(params->GetLinkUrl(), true, UU_NORMAL);
+        SetClipboardText(browser, url);
         return true;
     }
 
