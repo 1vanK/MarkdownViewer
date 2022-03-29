@@ -122,13 +122,13 @@ void MaximizeWindow(CefRefPtr<CefBrowser> browser)
     Atom wmState = XInternAtom(display, "_NET_WM_STATE", False);
     Atom maxH = XInternAtom(display, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
     Atom maxV = XInternAtom(display, "_NET_WM_STATE_MAXIMIZED_VERT", False);
-    Atom toggle = XInternAtom(display, "_NET_WM_STATE_TOGGLE", False);
+    const Atom TOGGLE = 2;
 
     ev.type = ClientMessage;
     ev.format = 32;
     ev.window = window;
     ev.message_type = wmState;
-    ev.data.l[0] = toggle;
+    ev.data.l[0] = TOGGLE;
     ev.data.l[1] = maxH;
     ev.data.l[2] = maxV;
     ev.data.l[3] = 1;

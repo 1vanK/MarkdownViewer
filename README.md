@@ -11,7 +11,7 @@
 
 ## Установка
 
-1. Скачайте последнюю скомпилированную версию: <https://github.com/1vanK/MarkdownViewer/releases>.
+1. Скачайте последнюю скомпилированную версию: <https://github.com/1vanK/MarkdownViewer/releases> (ТУТ ПОКА ЧТО УСТАРЕВШИЕ ВЕРСИИ, КОМПИЛИРУЙТЕ САМИ).
 2. Распакуйте архив в любую папку (например в `c:\Programs\IMV`).
 3. Ассоциируйте .md-файлы с программой.
 
@@ -86,6 +86,38 @@ cmake --build build_vs --config Release
 pause
 ```
 5. Результат сборки будет помещен в папку `build/result`
+
+## Компиляция в Linux (проверено только в Linux Mint 20.3 Cinnamon)
+
+1. Скрипт для скачивания репозитория:
+```
+#!/bin/sh
+
+# Качаем репозиторий в папку repo
+git clone https://github.com/1vanK/MarkdownViewer repo
+```
+2. Скачайте <https://cef-builds.spotifycdn.com/cef_binary_99.2.12%2Bg2977b3a%2Bchromium-99.0.4844.74_linux64.tar.bz2>
+   и поместите содержимое папки cef_binary_* из архива в папку `repo/third_party/cef` **без** перезаписи
+3. Скрипт для установки зависимостей:
+```
+#!/bin/sh
+
+sudo apt update
+sudo apt install git cmake build-essential libx11-dev
+```
+4. Скрипт для генерации и компиляции проектов
+```
+#!/bin/sh
+
+cmake repo -B build -G "Unix Makefiles"
+cmake --build build
+```
+5. Установка xclip (чтобы работало копирование ссылок через контектное меню)
+```
+sudo apt install xclip
+```
+6. Создание ассоциации md-файлов с приложением:
+ПКМ на любом md-файле > Открыть с помощью > Другое > Пользовательская команда > `/путь/к/прорамме %u` > `Сохранить ассоциацию + Использовать по умолчанию` > Ok
 
 ## Примечания
 

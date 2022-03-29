@@ -92,7 +92,7 @@ if(OS_LINUX)
     -pipe                           # Use pipes rather than temporary files for communication between build stages
     -pthread                        # Use the pthread library
     -Wall                           # Enable all warnings
-    -Werror                         # Treat warnings as errors
+#    -Werror                         # Treat warnings as errors # IMV
     -Wno-missing-field-initializers # Don't warn about missing field initializers
     -Wno-unused-parameter           # Don't warn about unused parameters
     -Wno-error=comment              # Don't warn about code in comments
